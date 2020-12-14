@@ -7,41 +7,14 @@
     tools:context=".FirstPageActivity">
 
     <Button
-        android:id="@+id/startButton"
-        android:layout_width="70dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="340dp"
-        android:onClick="startEnter"
-        android:text="확인"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.976"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
         android:id="@+id/endButton"
         android:layout_width="70dp"
         android:layout_height="50dp"
-        android:layout_marginTop="16dp"
         android:onClick="endEnter"
         android:text="확인"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.975"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startButton" />
-
-    <EditText
-        android:id="@+id/startPoint"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="340dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:ems="10"
-        android:hint="출발 지점을 입력하세요"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,18 +23,18 @@
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="도착 지점을 입력하세요"
+        android:hint="목적지를 입력하세요"
         android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/endButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startPoint" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/startNavigation"
         android:layout_width="131dp"
         android:layout_height="59dp"
         android:onClick="startNavigation"
