@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         tMapView = new TMapView(this);
         tMapView.setSKTMapApiKey(appkey);
         tMapView.setIconVisibility(true);
+        tMapView.setZoomLevel(18);
         linearLayoutTmap.addView(tMapView);
         Intent firstPageSetting = getIntent();
 
