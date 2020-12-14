@@ -1,9 +1,8 @@
 # NaviWavi
 모바일 컴퓨팅 Term Project
 
-<br>
 
-## 🤞Abstract
+## 🤞 Abstract
 운전 중에 감정이 불안정하면 사고로 이어질 가능성이 높다.
 <br>
 우리는 이를 방지하고자 감정 변화 유도 네비게이션을 제안한다.
@@ -14,9 +13,8 @@
 <br>
 목적지까지 주행을 완료 후, 설문을 통해 운전자의 감정 상태의 변화에 대해 물어본다.
 
-<br>
 
-## 📜Implementation Order
+## 📜 Implementation Order
 
 - __Tmap API를 기반으로 내비게이션 구현__
     - 사용자에게 목적지를 입력받기
