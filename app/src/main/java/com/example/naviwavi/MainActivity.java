@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private double startLongitude;
     private double endLatitude;
     private double endLongitude;
+    private double stopNavigationThreshold = 0.0005;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         tMapView = new TMapView(this);
         tMapView.setSKTMapApiKey(appkey);
         tMapView.setIconVisibility(true);
-        tMapView.setZoomLevel(18);
+        tMapView.setZoomLevel(17);
         linearLayoutTmap.addView(tMapView);
         Intent firstPageSetting = getIntent();
 
@@ -107,6 +108,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showRoute() {
+        if(Math.abs(startLatitude-endLatitude) < stopNavigationThreshold
+                && Math.abs(startLongitude-endLongitude) < stopNavigationThreshold) {
+            Toast.makeText(getApplicationContext(), "목적지에 도착하였습니다\n경로 안내를 종료합니다", Toast.LENGTH_SHORT).show();
+            finish();
+        }
         TMapPoint routeStart = new TMapPoint(startLatitude, startLongitude);
         TMapPoint routeEnd = new TMapPoint(endLatitude, endLongitude);
         TMapData tmapdata = new TMapData();

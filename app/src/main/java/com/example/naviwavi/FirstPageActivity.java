@@ -52,6 +52,7 @@ public class FirstPageActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "도착지를 입력해주세요", Toast.LENGTH_SHORT).show();
         } else {
             searchDoneString = destination;
+            destinationPOI = null;
             searchPossibleOption(destination);
         }
     }
@@ -73,12 +74,20 @@ public class FirstPageActivity extends AppCompatActivity {
     private void sendToOptionActivity () {
         if(destinationPOI != null) {
             Intent option = new Intent(this, OptionActivity.class);
-            option.putExtra("oneName", destinationPOI.get(0).name);
-            option.putExtra("oneRoadName", destinationPOI.get(0).roadName);
-            option.putExtra("twoName", destinationPOI.get(1).name);
-            option.putExtra("twoRoadName", destinationPOI.get(1).roadName);
-            option.putExtra("threeName", destinationPOI.get(2).name);
-            option.putExtra("threeRoadName", destinationPOI.get(2).roadName);
+            ArrayList<String> nameAndRoadName = new ArrayList<>();
+            if (destinationPOI.size() >= 1) {
+                nameAndRoadName.add(destinationPOI.get(0).name);
+                nameAndRoadName.add(destinationPOI.get(0).roadName);
+            }
+            if (destinationPOI.size() >= 2) {
+                nameAndRoadName.add(destinationPOI.get(1).name);
+                nameAndRoadName.add(destinationPOI.get(1).roadName);
+            }
+            if (destinationPOI.size() >= 3) {
+                nameAndRoadName.add(destinationPOI.get(2).name);
+                nameAndRoadName.add(destinationPOI.get(2).roadName);
+            }
+            option.putExtra("nameAndRoadName", nameAndRoadName);
             startActivity(option);
         } else {
             Toast.makeText(getApplicationContext(), "검색 결과가 없습니다", Toast.LENGTH_SHORT).show();
