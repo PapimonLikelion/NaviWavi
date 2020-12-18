@@ -13,17 +13,21 @@ import android.hardware.Camera;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.TextureView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapMarkerItem;
@@ -31,11 +35,16 @@ import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -44,6 +53,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -60,19 +70,13 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public MediaPlayer mediaPlayer;
 
     /* 캡쳐 관련 */
-    static int i = 0;
+    static int i = 30;
     private Camera mCamera;
+    OutputStream stream;
+
     TextureView cameraView;
     String clientId = "c3o8u3iq7i";//애플리케이션 클라이언트 아이디값";
     String clientSecret = "O4iTbHkxKNoQtDVHMpID7WHYKJ650qcmmiqQ6har";//애플리케이션 클라이언트 시크릿값";
-
-    String[] PERMISSIONS = {
-            android.Manifest.permission.READ_CONTACTS,
-            android.Manifest.permission.WRITE_CONTACTS,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_SMS,
-            android.Manifest.permission.CAMERA
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,18 +91,11 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         linearLayoutTmap.addView(tMapView);
         Intent firstPageSetting = getIntent();
 
-        /* 카메라 권한 어찌 추가 필수! */
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }
-            return;
-        }
         gpsSetting();
         endLatitude = Double.parseDouble(firstPageSetting.getStringExtra("endLatitude"));
         endLongitude = Double.parseDouble(firstPageSetting.getStringExtra("endLongitude"));
         markDestination();
+
         cameraView = (TextureView)findViewById(R.id.cameraTextureView);
         cameraView.setSurfaceTextureListener(this);
     }
@@ -172,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
     /* 감정 상태에 따라 음악 재생 */
     public void playMusic(String feeling) {
+        endMusic();
         if (feeling.equals("neutral")) {
             return;
         } else if (feeling.equals("anger")) {
@@ -241,42 +239,31 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
         cameraView = (TextureView)findViewById(R.id.cameraTextureView);
         cameraView.setSurfaceTextureListener(this);
-
-//        Toast.makeText(getApplicationContext(), Integer.toString(i), Toast.LENGTH_SHORT).show();
-        if (i==8){
+        if (i==200){
             i=0;
-            Toast.makeText(getApplicationContext(), "Capture!", Toast.LENGTH_SHORT).show();
-
             // TextureView에서 이미지 캡쳐
             Bitmap bitmap = cameraView.getBitmap();
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] currentData = stream.toByteArray();
+            String tmp_file_name = "/tmp_face.jpg";
+            File tmp_filepath = getCacheDir();
 
-//            Toast.makeText(getApplicationContext(), Integer.toString(currentData.length), Toast.LENGTH_SHORT).show();
-//            Toast.makeText(getApplicationContext(), currentData[0], Toast.LENGTH_SHORT).show();
-//            String file_name = "tem_face.jpg";
-//            String string_path = "";
-//            File file_path;
-//            try{
-//                file_path = new File(string_path);
-//                if(!file_path.isDirectory()){
-//                    file_path.mkdirs();
-//                }
-//                FileOutputStream out = new FileOutputStream(string_path+file_name);
-//
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-//                out.close();
-//            }catch(FileNotFoundException exception){
-//                Log.e("FileNotFoundException", exception.getMessage());
-//            }catch(IOException exception){
-//                Log.e("IOException", exception.getMessage());
-//            }
+            File tempFile = new File(tmp_filepath, tmp_file_name);
+            try {
+                tempFile.createNewFile();
+                FileOutputStream out = new FileOutputStream(tempFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
+            ImageView imageView = (ImageView) findViewById(R.id.imageView2);
+            imageView.setImageBitmap(bitmap);
             try {
                 String paramName = "image"; // 파라미터명은 image로 지정
-//                String imgFile = "이미지 파일 경로 ";
-//                File uploadFile = new File(imgFile);
+                String imgFile = tmp_filepath.toString() + tmp_file_name;
+                File uploadFile = new File(imgFile);
                 String apiURL = "https://naveropenapi.apigw.ntruss.com/vision/v1/face"; // 얼굴 감지
                 URL url = new URL(apiURL);
                 HttpURLConnection con = (HttpURLConnection)url.openConnection();
@@ -292,23 +279,20 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, "UTF-8"), true);
                 String LINE_FEED = "\r\n";
                 // file 추가
-//                String fileName = uploadFile.getName();
-                String fileName = "test_file";
+                String fileName = uploadFile.getName();
                 writer.append("--" + boundary).append(LINE_FEED);
                 writer.append("Content-Disposition: form-data; name=\"" + paramName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
                 writer.append("Content-Type: "  + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
                 writer.append(LINE_FEED);
                 writer.flush();
-//                FileInputStream inputStream = new FileInputStream(uploadFile);
-//                byte[] buffer = new byte[4096];
-//                int bytesRead = -1;
-//                while ((bytesRead = inputStream.read(buffer)) != -1) {
-//                    outputStream.write(buffer, 0, bytesRead);
-//                }
-                Toast.makeText(getApplicationContext(), Integer.toString(currentData.length), Toast.LENGTH_SHORT).show();
-                outputStream.write(currentData, 0, currentData.length);
+                FileInputStream inputStream = new FileInputStream(uploadFile);
+                byte[] buffer = new byte[4096];
+                int bytesRead = -1;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
                 outputStream.flush();
-//                inputStream.close();
+                inputStream.close();
                 writer.append(LINE_FEED).flush();
                 writer.append("--" + boundary + "--").append(LINE_FEED);
                 writer.close();
@@ -321,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     br = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 }
                 String inputLine;
+                JSONObject jsonObject;
                 if(br != null) {
                     StringBuffer response = new StringBuffer();
                     while ((inputLine = br.readLine()) != null) {
@@ -328,6 +313,14 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     }
                     br.close();
                     System.out.println(response.toString());
+                    jsonObject = new JSONObject(String.valueOf(response));
+                    JSONArray faceInfoArray = (JSONArray) jsonObject.get("faces");
+                    JSONObject faceObject = (JSONObject) faceInfoArray.get(0);
+                    JSONObject emotionObject = (JSONObject) faceObject.getJSONObject("emotion");
+
+
+                    playMusic(emotionObject.getString("value"));
+                    Toast.makeText(getApplicationContext(), emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
                 } else {
                     System.out.println("error !!!");
                 }
@@ -341,3 +334,4 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             i++;
     }
 }
+
