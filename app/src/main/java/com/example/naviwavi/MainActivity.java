@@ -1,19 +1,15 @@
 package com.example.naviwavi;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,6 +20,10 @@ import android.util.Log;
 import android.view.TextureView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapMarkerItem;
@@ -66,6 +66,14 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     String clientId = "c3o8u3iq7i";//애플리케이션 클라이언트 아이디값";
     String clientSecret = "O4iTbHkxKNoQtDVHMpID7WHYKJ650qcmmiqQ6har";//애플리케이션 클라이언트 시크릿값";
 
+    String[] PERMISSIONS = {
+            android.Manifest.permission.READ_CONTACTS,
+            android.Manifest.permission.WRITE_CONTACTS,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.READ_SMS,
+            android.Manifest.permission.CAMERA
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         linearLayoutTmap.addView(tMapView);
         Intent firstPageSetting = getIntent();
 
+        /* 카메라 권한 어찌 추가 필수! */
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -213,6 +222,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             Log.e("camera-reverse", ioe.getMessage());
         }
     }
+
     @Override
     public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {
 
