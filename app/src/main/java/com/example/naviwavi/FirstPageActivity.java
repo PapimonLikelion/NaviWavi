@@ -3,19 +3,16 @@ package com.example.naviwavi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapPOIItem;
-import com.skt.Tmap.TMapPoint;
-import com.skt.Tmap.TMapPolyLine;
 import com.skt.Tmap.TMapTapi;
 
 import org.w3c.dom.Text;
@@ -40,8 +37,6 @@ public class FirstPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_page);
-
-        OptionActivity optionActivity = new OptionActivity(this);
     }
 
     /*도착 지점 입력 후 후보지 검색*/
@@ -55,6 +50,11 @@ public class FirstPageActivity extends AppCompatActivity {
             destinationPOI = null;
             searchPossibleOption(destination);
         }
+    }
+
+    public String getURLForResource (int resourceId) {
+        //use BuildConfig.APPLICATION_ID instead of R.class.getPackage().getName() if both are not same
+        return Uri.parse("android.resource://"+R.class.getPackage().getName()+"/" +resourceId).toString();
     }
 
     /* 후보지 1,2,3을 뽑아 FirstPageActivity에 전달 */
@@ -115,4 +115,6 @@ public class FirstPageActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }
