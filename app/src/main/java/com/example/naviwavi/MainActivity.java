@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             mediaPlayer = MediaPlayer.create(this, R.raw.anger);
             mediaPlayer.start();
         } else if (feeling.equals("sad")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
+            mediaPlayer = MediaPlayer.create(this, R.raw.sad);
             mediaPlayer.start();
         } else if (feeling.equals("surprise")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                         playMusic(getEmotion);
                         TextView tmp_textView = (TextView) findViewById(R.id.textView3);
                         tmp_textView.setText(emotion_li.toString());
-                        emotion_li.clear();
+                        emotion_li.remove(0);
                     }
                 } else {
                     System.out.println("error !!!");
