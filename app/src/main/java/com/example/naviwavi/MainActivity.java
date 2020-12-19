@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.TextureView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -55,6 +56,8 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -67,13 +70,16 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     private double endLatitude;
     private double endLongitude;
     private double stopNavigationThreshold = 0.0005;
+    private static List<String> emotion_li = new ArrayList<>();
 
     /* 음악 재생 모듈 */
     public MediaPlayer mediaPlayer;
 
     /* 캡쳐 관련 */
     static int cnt = 0;
-    static int cnt_limit = 200;
+    static int cnt_limit_sec = 30;
+    static int cnt_term = 10;
+
     private Camera mCamera;
     OutputStream stream;
 
@@ -179,39 +185,16 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
         if (feeling.equals("neutral")) {
             return;
-        } else if (feeling.equals("anger")) {
+        } else if (feeling.equals("anger") || feeling.equals("disgust")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.anger);
             mediaPlayer.start();
-        } else if (feeling.equals("disgust")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.disgust);
-            mediaPlayer.start();
-        } else if (feeling.equals("fear")) {
+        } else if (feeling.equals("fear") || feeling.equals("sad")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.fear);
             mediaPlayer.start();
-        } else if (feeling.equals("sad")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
-            mediaPlayer.start();
-        } else if (feeling.equals("smile")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
+        } else if (feeling.equals("surprise")) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
             mediaPlayer.start();
         }
-//        if (feeling.equals("neutral")) {
-//            return;
-//        } else if (feeling.equals("anger")) {
-//            mediaPlayer.setDataSource("app/src/main/res/raw/anger.mp3");
-//            mediaPlayer.start();
-//        } else if (feeling.equals("disgust")) {
-//            mediaPlayer.setDataSource("app/src/main/res/raw/disgust.mp3");
-////            mediaPlayer = MediaPlayer.create(this, R.raw.disgust);
-//            mediaPlayer.start();
-//        } else if (feeling.equals("fear")) {
-//            mediaPlayer.setDataSource("app/src/main/res/raw/fear.mp3");
-////            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
-//            mediaPlayer.start();
-//        } else if (feeling.equals("sad")) {
-//            mediaPlayer.setDataSource("app/src/main/res/raw/anger.mp3");
-//            mediaPlayer.start();
-//        }
     }
 
     @Override
@@ -248,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
         cameraView = (TextureView)findViewById(R.id.cameraTextureView);
         cameraView.setSurfaceTextureListener(this);
-        if (cnt==cnt_limit){
+        if (cnt==cnt_limit_sec){
             cnt=0;
             // TextureView에서 이미지 캡쳐
             Bitmap bitmap = cameraView.getBitmap();
@@ -267,8 +250,8 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 e.printStackTrace();
             }
 
-            ImageView imageView = (ImageView) findViewById(R.id.imageView2);
-            imageView.setImageBitmap(bitmap);
+//            ImageView imageView = (ImageView) findViewById(R.id.imageView2);
+//            imageView.setImageBitmap(bitmap);
             try {
                 String paramName = "image"; // 파라미터명은 image로 지정
                 String imgFile = tmp_filepath.toString() + tmp_file_name;
@@ -328,11 +311,25 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     JSONObject emotionObject = (JSONObject) faceObject.getJSONObject("emotion");
 
                     Toast.makeText(getApplicationContext(), emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
-                    playMusic(emotionObject.getString("value"));
-//                    Toast.makeText(getApplicationContext(), emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
+                    String tmp_emotion = emotionObject.getString("value");
+
+                    if (tmp_emotion.isEmpty())
+                        emotion_li.add("neutral");
+                    else
+                        emotion_li.add(emotionObject.getString("value"));
+
+                    if (emotion_li.size() == cnt_term){
+                        String getEmotion = findEmotion(emotion_li);
+                        playMusic(getEmotion);
+                        Toast.makeText(getApplicationContext(), getEmotion, Toast.LENGTH_SHORT).show();
+                        TextView tmp_textView = (TextView) findViewById(R.id.textView3);
+                        tmp_textView.setText(emotion_li.toString());
+                        emotion_li.clear();
+                    }
                 } else {
                     System.out.println("error !!!");
                 }
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -342,5 +339,60 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         else
             cnt++;
     }
-}
 
+    public String findEmotion(List<String> stringList){
+        int anger_cnt = 0;
+        int sad_cnt = 0;
+        int surprise_cnt = 0;
+        int neutral_cnt = 0;
+
+        for (int i=0; i < stringList.size(); i++){
+            switch (stringList.get(i)){
+                case "anger":
+                    anger_cnt++;
+                    break;
+                case "disgust":
+                    anger_cnt++;
+                    break;
+                case "sad":
+                    sad_cnt++;
+                    break;
+                case "fear":
+                    sad_cnt++;
+                    break;
+                case "surprise":
+                    surprise_cnt++;
+                    break;
+                default:
+                    neutral_cnt++;
+                    break;
+            }
+        }
+        List<Integer> emotion_cnt_li = Arrays.asList(neutral_cnt, anger_cnt, sad_cnt, surprise_cnt);
+        int predicted_emotion = getIndexOfLargest(emotion_cnt_li);
+
+        if (predicted_emotion == 0)
+            return "neutral";
+        else if(predicted_emotion == 1)
+            return "anger";
+        else if(predicted_emotion == 2)
+            return "sad";
+        else if(predicted_emotion == 3)
+            return "surprise";
+
+        return "neutral";
+    };
+
+    public static int getIndexOfLargest( List<Integer> list ){
+        if ( list == null || list.size() == 0 ) return -1; // null or empty
+        Integer i=0, maxIndex=-1, max=null;
+        for (Integer x : list) {
+            if ((x!=null) && ((max==null) || (x>max))) {
+                max = x;
+                maxIndex = i;
+            }
+            i++;
+        }
+        return maxIndex;
+    }
+}
