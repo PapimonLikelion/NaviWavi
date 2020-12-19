@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             finish();
             /* 음악 모듈 제거 */
             if(mediaPlayer != null) {
+                mediaPlayer.stop();
                 mediaPlayer.release();
                 mediaPlayer = null;
             }
@@ -179,22 +180,31 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     /* 감정 상태에 따라 음악 재생 */
     public void playMusic(String feeling) throws IOException {
         if(mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer = null;
+//            mediaPlayer.stop();
+//            mediaPlayer = null;
+            return;
         }
 
         if (feeling.equals("neutral")) {
             return;
-        } else if (feeling.equals("anger") || feeling.equals("disgust")) {
+        } else if (feeling.equals("anger")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.anger);
             mediaPlayer.start();
-        } else if (feeling.equals("fear") || feeling.equals("sad")) {
+        } else if (feeling.equals("sad")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.fear);
             mediaPlayer.start();
         } else if (feeling.equals("surprise")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
             mediaPlayer.start();
         }
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mediaPlayer.stop();
+                mediaPlayer = null;
+            }
+        });
     }
 
     @Override
@@ -250,8 +260,6 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 e.printStackTrace();
             }
 
-//            ImageView imageView = (ImageView) findViewById(R.id.imageView2);
-//            imageView.setImageBitmap(bitmap);
             try {
                 String paramName = "image"; // 파라미터명은 image로 지정
                 String imgFile = tmp_filepath.toString() + tmp_file_name;
@@ -321,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     if (emotion_li.size() == cnt_term){
                         String getEmotion = findEmotion(emotion_li);
                         playMusic(getEmotion);
-                        Toast.makeText(getApplicationContext(), getEmotion, Toast.LENGTH_SHORT).show();
                         TextView tmp_textView = (TextView) findViewById(R.id.textView3);
                         tmp_textView.setText(emotion_li.toString());
                         emotion_li.clear();
