@@ -70,6 +70,8 @@ public class OptionActivity extends AppCompatActivity {
         FirstPageActivity.userChosenOption = 0;
         FirstPageActivity.finalDestination = oneName;
         FirstPageActivity.searchDone = true;
+        FirstPageActivity.tmp_textView.setText(oneName);
+
         finish();
     }
 
@@ -77,6 +79,8 @@ public class OptionActivity extends AppCompatActivity {
         FirstPageActivity.userChosenOption = 1;
         FirstPageActivity.finalDestination = twoName;
         FirstPageActivity.searchDone = true;
+        FirstPageActivity.tmp_textView.setText(twoName);
+
         finish();
 
     }
@@ -85,6 +89,8 @@ public class OptionActivity extends AppCompatActivity {
         FirstPageActivity.userChosenOption = 2;
         FirstPageActivity.finalDestination = threeName;
         FirstPageActivity.searchDone = true;
+        FirstPageActivity.tmp_textView.setText(threeName);
+
         finish();
     }
 }

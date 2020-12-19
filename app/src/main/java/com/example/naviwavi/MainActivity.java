@@ -15,9 +15,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.Image;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.TextureView;
 import android.widget.ImageView;
@@ -70,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public MediaPlayer mediaPlayer;
 
     /* 캡쳐 관련 */
-    static int i = 30;
+    static int cnt = 0;
+    static int cnt_limit = 200;
     private Camera mCamera;
     OutputStream stream;
 
@@ -168,8 +171,12 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
 
 
     /* 감정 상태에 따라 음악 재생 */
-    public void playMusic(String feeling) {
-        endMusic();
+    public void playMusic(String feeling) throws IOException {
+        if(mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer = null;
+        }
+
         if (feeling.equals("neutral")) {
             return;
         } else if (feeling.equals("anger")) {
@@ -181,28 +188,30 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         } else if (feeling.equals("fear")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.fear);
             mediaPlayer.start();
-        }
-        /*else if (feeling.equals("laugh")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.laugh);
-            mediaPlayer.start();
         } else if (feeling.equals("sad")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.sad);
-            mediaPlayer.start();
-        } else if (feeling.equals("surprise")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.surprise);
+            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
             mediaPlayer.start();
         } else if (feeling.equals("smile")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.smile);
+            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
             mediaPlayer.start();
-        } else if (feeling.equals("talking")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.talking);
-            mediaPlayer.start();
-        }*/
-    }
-
-    public void endMusic() {
-        mediaPlayer.stop();
-        mediaPlayer.reset();
+        }
+//        if (feeling.equals("neutral")) {
+//            return;
+//        } else if (feeling.equals("anger")) {
+//            mediaPlayer.setDataSource("app/src/main/res/raw/anger.mp3");
+//            mediaPlayer.start();
+//        } else if (feeling.equals("disgust")) {
+//            mediaPlayer.setDataSource("app/src/main/res/raw/disgust.mp3");
+////            mediaPlayer = MediaPlayer.create(this, R.raw.disgust);
+//            mediaPlayer.start();
+//        } else if (feeling.equals("fear")) {
+//            mediaPlayer.setDataSource("app/src/main/res/raw/fear.mp3");
+////            mediaPlayer = MediaPlayer.create(this, R.raw.fear);
+//            mediaPlayer.start();
+//        } else if (feeling.equals("sad")) {
+//            mediaPlayer.setDataSource("app/src/main/res/raw/anger.mp3");
+//            mediaPlayer.start();
+//        }
     }
 
     @Override
@@ -212,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         matrix.setScale(-1, 1);
         matrix.postTranslate(width, 0);
         cameraView.setTransform(matrix);
-
+        mCamera.setDisplayOrientation(90);
         try{
             mCamera.setPreviewTexture(surface);
             mCamera.startPreview();
@@ -239,8 +248,8 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
     public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
         cameraView = (TextureView)findViewById(R.id.cameraTextureView);
         cameraView.setSurfaceTextureListener(this);
-        if (i==200){
-            i=0;
+        if (cnt==cnt_limit){
+            cnt=0;
             // TextureView에서 이미지 캡쳐
             Bitmap bitmap = cameraView.getBitmap();
             String tmp_file_name = "/tmp_face.jpg";
@@ -318,9 +327,9 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     JSONObject faceObject = (JSONObject) faceInfoArray.get(0);
                     JSONObject emotionObject = (JSONObject) faceObject.getJSONObject("emotion");
 
-
-                    playMusic(emotionObject.getString("value"));
                     Toast.makeText(getApplicationContext(), emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
+                    playMusic(emotionObject.getString("value"));
+//                    Toast.makeText(getApplicationContext(), emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
                 } else {
                     System.out.println("error !!!");
                 }
@@ -331,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
             }
         }
         else
-            i++;
+            cnt++;
     }
 }
 

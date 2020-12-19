@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.skt.Tmap.TMapData;
@@ -37,7 +38,8 @@ public class FirstPageActivity extends AppCompatActivity {
     public static String finalDestination;
     public static boolean searchDone = false;
     public ArrayList<TMapPOIItem> destinationPOI;
-    private static String searchDoneString;
+//    private static String searchDoneString;
+    public static TextView tmp_textView;
 
     String[] PERMISSIONS = {
             android.Manifest.permission.READ_CONTACTS,
@@ -54,6 +56,7 @@ public class FirstPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_page);
+        tmp_textView = (TextView) findViewById(R.id.endPoint);
 
         // 권한 신청.
         if(!hasPermissions(this, PERMISSIONS)){
@@ -68,7 +71,7 @@ public class FirstPageActivity extends AppCompatActivity {
         if (destination.equals("")) {
             Toast.makeText(getApplicationContext(), "도착지를 입력해주세요", Toast.LENGTH_SHORT).show();
         } else {
-            searchDoneString = destination;
+//            searchDoneString = destination;
             destinationPOI = null;
             searchPossibleOption(destination);
         }
@@ -120,7 +123,7 @@ public class FirstPageActivity extends AppCompatActivity {
     public void startNavigation(View v) throws ParserConfigurationException, SAXException, IOException {
         EditText Destination = (EditText) findViewById(R.id.endPoint);
         String destination = Destination.getText().toString();
-        if (!searchDone || !searchDoneString.equals(destination)) {
+        if (!searchDone) {
             Toast.makeText(getApplicationContext(), "검색을 진행해주세요", Toast.LENGTH_SHORT).show();
         } else {
             TMapTapi tmaptapi = new TMapTapi(this);
