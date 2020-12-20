@@ -13,16 +13,10 @@ import android.hardware.Camera;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.Image;
 import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.TextureView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +24,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapMarkerItem;
@@ -43,7 +36,6 @@ import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,14 +55,17 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class MainActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
+    /* 지도 관련 */
     private static String appkey = "l7xx7605cdc317c24677991d6d78a182ff5f\n"; //앱키
     private static TMapView tMapView; //지도객체
     private double startLatitude;
     private double startLongitude;
     private double endLatitude;
     private double endLongitude;
-    private double stopNavigationThreshold = 0.0005;
+    private double stopNavigationThreshold = 0.001;
     private static List<String> emotion_li = new ArrayList<>();
+    private static int ZOOM_LEVEL = 14;
+    private static int LOCATION_RENEWAL_TIME_ = 2000;  //단위는 ms
 
     /* 음악 재생 모듈 */
     public MediaPlayer mediaPlayer;
@@ -96,7 +91,9 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
         tMapView = new TMapView(this);
         tMapView.setSKTMapApiKey(appkey);
         tMapView.setIconVisibility(true);
-        tMapView.setZoomLevel(17);
+        tMapView.setZoomLevel(ZOOM_LEVEL);
+        tMapView.setCompassMode(true);
+        tMapView.setTrackingMode(true);
         linearLayoutTmap.addView(tMapView);
         Intent firstPageSetting = getIntent();
 
@@ -127,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 double longitude = location.getLongitude();
                 startLatitude = latitude;
                 startLongitude = longitude;
+                Toast.makeText(getApplicationContext(), new Double(startLatitude).toString(), Toast.LENGTH_SHORT).show();
                 showRoute();
             }
         }
@@ -141,7 +139,8 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
-        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, mLocationListener);
+        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_RENEWAL_TIME_, 1, mLocationListener);
+//        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_RENEWAL_TIME_, 1, mLocationListener);
     }
 
     public void showRoute() {
