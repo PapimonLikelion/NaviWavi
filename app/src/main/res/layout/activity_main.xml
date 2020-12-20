@@ -31,10 +31,13 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="50dp"
         android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="@+id/tMap" />
+        android:textAlignment="viewStart"
+        app:layout_constraintBottom_toBottomOf="@+id/tMap"
+        app:layout_constraintEnd_toStartOf="@+id/cameraTextureView"
+        app:layout_constraintStart_toStartOf="@+id/tMap" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

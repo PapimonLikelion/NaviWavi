@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 double longitude = location.getLongitude();
                 startLatitude = latitude;
                 startLongitude = longitude;
-                Toast.makeText(getApplicationContext(), new Double(startLatitude).toString(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), new Double(startLatitude).toString(), Toast.LENGTH_SHORT).show();
                 showRoute();
             }
         }
@@ -317,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                     JSONObject faceObject = (JSONObject) faceInfoArray.get(0);
                     JSONObject emotionObject = (JSONObject) faceObject.getJSONObject("emotion");
 
-                    Toast.makeText(getApplicationContext(), emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Momentary Emotion: " + emotionObject.getString("value"), Toast.LENGTH_SHORT).show();
                     String tmp_emotion = emotionObject.getString("value");
 
                     if (tmp_emotion.isEmpty())
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                         String getEmotion = findEmotion(emotion_li);
                         playMusic(getEmotion);
                         TextView tmp_textView = (TextView) findViewById(R.id.textView3);
-                        tmp_textView.setText(emotion_li.toString());
+                        tmp_textView.setText("Recent 10 Emotion data\n"+emotion_li.toString());
                         emotion_li.remove(0);
                     }
                 } else {
