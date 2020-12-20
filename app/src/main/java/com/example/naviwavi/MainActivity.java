@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements TextureView.Surfa
                 mediaPlayer.release();
                 mediaPlayer = null;
             }
+            emotion_li.clear();
         }
         TMapPoint routeStart = new TMapPoint(startLatitude, startLongitude);
         TMapPoint routeEnd = new TMapPoint(endLatitude, endLongitude);
