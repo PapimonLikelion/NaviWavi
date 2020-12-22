@@ -1,6 +1,6 @@
 # NaviWavi
 모바일 컴퓨팅 Term Project
-
+https://docs.google.com/document/d/1RdzLOr3-v5hGspap78rsYbzx5tay5mwTpSBBHw4yG58/edit
 
 ## 🤞 Abstract
 운전 중에 감정이 불안정하면 사고로 이어질 가능성이 높다.
